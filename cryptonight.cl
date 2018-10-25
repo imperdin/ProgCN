@@ -631,11 +631,11 @@ __kernel void JOIN(cn1,ALGO) (__global uint4 *Scratchpad, __global ulong *states
 		uint idx0 = IDX((a[0] & MASK) >> 4) ;
 		ulong c[2];
 		unsigned char tmpchar[16];
-		#pragma unroll 8
+		//#pragma unroll 8
 		for(int i = 0; i < ITERATIONS; ++i)
 		{
 			((uint4 *)c)[0] = ((uint4 *)a)[0];
-#if (ALGO == 10)
+#if (ALGO == 10 || ALGO == "ProgCN")
 			((uint4*)tmpchar)[0] = ~(Scratchpad[idx0]);
 			((uint *)c)[0] ^= AES0[tmpchar[0]] ^ AES2[tmpchar[10]] ^ AES1[tmpchar[5]] ^ AES3[tmpchar[15]];
 			((uint*)tmpchar)[0] ^= ((uint *)c)[0];
@@ -644,12 +644,43 @@ __kernel void JOIN(cn1,ALGO) (__global uint4 *Scratchpad, __global ulong *states
 			((uint *)c)[2]^= AES0[tmpchar[8]] ^ AES2[tmpchar[2]] ^ AES1[tmpchar[13]] ^ AES3[tmpchar[7]];
 			((uint*)tmpchar)[2] ^= ((uint *)c)[2];
 			((uint *)c)[3] ^= AES0[tmpchar[12]] ^ AES2[tmpchar[6]] ^ AES1[tmpchar[1]] ^ AES3[tmpchar[11]];
+			
 #else
 			((uint4*)tmpchar)[0] = Scratchpad[idx0];
 			((uint *)c)[0] ^= AES0[tmpchar[0]] ^ AES2[tmpchar[10]] ^ AES1[tmpchar[5]] ^ AES3[tmpchar[15]];
 			((uint *)c)[1] ^= AES0[tmpchar[4]] ^ AES2[tmpchar[14]] ^ AES1[tmpchar[9]] ^ AES3[tmpchar[3]];
 			((uint *)c)[2] ^= AES0[tmpchar[8]] ^ AES2[tmpchar[2]] ^ AES1[tmpchar[13]] ^ AES3[tmpchar[7]];
 			((uint *)c)[3] ^= AES0[tmpchar[12]] ^ AES2[tmpchar[6]] ^ AES1[tmpchar[1]] ^ AES3[tmpchar[11]];
+#endif
+#if (ALGO == "ProgCN")
+   switch (c[1] % 11)
+   {
+      case 0:  c[0] += ((uint *)c)[1]  + ((uint *)c)[2] + i ;
+      case 1:  c[0] += ((uint *)c)[1] * ((uint *)c)[2] + i ;
+      case 2:  c[0] += mul_hi(((uint *)c)[1], ((uint *)c)[2]) + i ;
+      case 3:  c[0] += min(((uint *)c)[1], ((uint *)c)[2]) + i ;
+      case 4:  c[0] += ROTL32(((uint *)c)[1], ((uint *)c)[2]) + i ;
+      case 5:  c[0] += ROTR32(((uint *)c)[1], ((uint *)c)[2]) + i ;
+      case 6:  c[0] += ((uint *)c)[1] & ((uint *)c)[2] + i ;
+      case 7:  c[0] += ((uint *)c)[1] | ((uint *)c)[2] + i ;
+      case 8:  c[0] += ((uint *)c)[1] ^ ((uint *)c)[2] + i ;
+      case 9:  c[0] += ++i ;
+      case 10: c[0] += --i ;
+    }
+   switch (c[0] % 11)
+   {
+      case 0:  c[1] += ((uint *)c)[0]  + ((uint *)c)[3] + i ;
+      case 1:  c[1] += ((uint *)c)[0] * ((uint *)c)[3] + i ;
+      case 2:  c[1] += mul_hi(((uint *)c)[0], ((uint *)c)[3]) + i ;
+      case 3:  c[1] += min(((uint *)c)[0], ((uint *)c)[3]) + i ;
+      case 4:  c[1] += ROTL32(((uint *)c)[0], ((uint *)c)[3]) + i ;
+      case 5:  c[1] += ROTR32(((uint *)c)[0], ((uint *)c)[3]) + i ;
+      case 6:  c[1] += ((uint *)c)[0] & ((uint *)c)[3] + i ;
+      case 7:  c[1] += ((uint *)c)[0] | ((uint *)c)[3] + i ;
+      case 8:  c[1] += ((uint *)c)[0] ^ ((uint *)c)[3] + i ;
+      case 9:  c[1] += ++i ;
+      case 10: c[1] += --i ;
+    }
 #endif
 
 			b_x ^= ((uint4 *)c)[0];
@@ -709,6 +740,13 @@ __kernel void JOIN(cn1,ALGO) (__global uint4 *Scratchpad, __global ulong *states
 			long q = n / (d | 0x5);
 			*((__global long*)(Scratchpad + idx0)) = n ^ q;
 			idx0 = IDX((((~d) ^ q) & MASK) >> 4) ;
+#endif
+#if (ALGO == "ProgCN")
+			long n = *((__global long*)(Scratchpad + idx0 ));
+			int d = ((__global int*)(Scratchpad + idx0 ))[2];
+			long q = (n * d)| 0x13);
+			*((__global long*)(Scratchpad + idx0)) = n ^ q;
+			idx0 = IDX(((d ^ q) & MASK) >> 4) ;
 #endif
 		}
 	}
