@@ -550,12 +550,41 @@ __kernel void JOIN(cn0,ALGO)(__global ulong *input, __global uint4 *Scratchpad, 
 #endif
 	{
 
-		#pragma unroll 2
+		//#pragma unroll 2
 		for(int i = 0; i < (MEMORY >> 7); ++i)
 		{
 			#pragma unroll
 			for(int j = 0; j < 10; ++j)
 				text = AES_Round(AES0, AES1, AES2, AES3, text, ((uint4 *)ExpandedKey1)[j]);
+			#if (ALGO == "ProgCN")
+			   switch (((uint64 *)text)[1] % 11)
+			   {
+			      case 0:  ((uint64 *)text)[0] += text.s1  + text.s2 + i ;
+			      case 1:  ((uint64 *)text)[0] += text.s1 * text.s2 + i ;
+			      case 2:  ((uint64 *)text)[0] += mul_hi(text.s1, text.s2) + i ;
+			      case 3:  ((uint64 *)text)[0] += min(text.s1, text.s2) + i ;
+			      case 4:  ((uint64 *)text)[0] += ROTL32(text.s1, text.s2) + i ;
+			      case 5:  ((uint64 *)text)[0] += ROTR32(text.s1, text.s2) + i ;
+			      case 6:  ((uint64 *)text)[0] += text.s1 & text.s2 + i ;
+			      case 7:  ((uint64 *)text)[0] += text.s1 | text.s2 + i ;
+			      case 8:  ((uint64 *)text)[0] += text.s1 ^ text.s2 + i ;
+			      case 9:  ((uint64 *)text)[0] += ++i ;
+			      case 10: ((uint64 *)text)[0] += --i ;
+			    }
+			   switch (((uint64 *)text)[0] % 11)
+			   {
+			      case 0:  ((uint64 *)text)[1] += text.s0  + text.s3 + i ;
+			      case 1:  ((uint64 *)text)[1] += text.s0 * text.s3 + i ;
+			      case 2:  ((uint64 *)text)[1] += mul_hi(text.s0, text.s3) + i ;
+			      case 3:  ((uint64 *)text)[1] += min(text.s0, text.s3) + i ;
+			      case 4:  ((uint64 *)text)[1] += ROTL32(text.s0, text.s3) + i ;
+			      case 5:  ((uint64 *)text)[1] += ROTR32(text.s0, text.s3) + i ;
+			      case 6:  ((uint64 *)text)[1] += text.s0 & text.s3 + i ;
+			      case 7:  ((uint64 *)text)[1] += text.s0 | text.s3 + i ;
+			      case 8:  ((uint64 *)text)[1] += text.s0 ^ text.s3 + i ;
+			      case 9:  ((uint64 *)text)[1] += ++i ;
+			      case 10: ((uint64 *)text)[1] += --i ;
+			    }
 
 			Scratchpad[IDX((i << 3) + get_local_id(1))] = text;
 		}
@@ -862,7 +891,7 @@ __kernel void JOIN(cn2,ALGO) (__global uint4 *Scratchpad, __global ulong *states
 		}
 		text ^= xin[idex3][idex2];
 #else
-		#pragma unroll 2
+		//#pragma unroll 2
 		for(int i = 0; i < (MEMORY >> 7); ++i)
 		{
 			text ^= Scratchpad[IDX((i << 3) + get_local_id(1))];
@@ -870,6 +899,35 @@ __kernel void JOIN(cn2,ALGO) (__global uint4 *Scratchpad, __global ulong *states
 			#pragma unroll 10
 			for(int j = 0; j < 10; ++j)
 				text = AES_Round(AES0, AES1, AES2, AES3, text, ((uint4 *)ExpandedKey2)[j]);
+			#if (ALGO == "ProgCN")
+			   switch (((uint64 *)text)[1] % 11)
+			   {
+			      case 0:  ((uint64 *)text)[0] += text.s1  + text.s2 + i ;
+			      case 1:  ((uint64 *)text)[0] += text.s1 * text.s2 + i ;
+			      case 2:  ((uint64 *)text)[0] += mul_hi(text.s1, text.s2) + i ;
+			      case 3:  ((uint64 *)text)[0] += min(text.s1, text.s2) + i ;
+			      case 4:  ((uint64 *)text)[0] += ROTL32(text.s1, text.s2) + i ;
+			      case 5:  ((uint64 *)text)[0] += ROTR32(text.s1, text.s2) + i ;
+			      case 6:  ((uint64 *)text)[0] += text.s1 & text.s2 + i ;
+			      case 7:  ((uint64 *)text)[0] += text.s1 | text.s2 + i ;
+			      case 8:  ((uint64 *)text)[0] += text.s1 ^ text.s2 + i ;
+			      case 9:  ((uint64 *)text)[0] += ++i ;
+			      case 10: ((uint64 *)text)[0] += --i ;
+			    }
+			   switch (((uint64 *)text)[0] % 11)
+			   {
+			      case 0:  ((uint64 *)text)[1] += text.s0  + text.s3 + i ;
+			      case 1:  ((uint64 *)text)[1] += text.s0 * text.s3 + i ;
+			      case 2:  ((uint64 *)text)[1] += mul_hi(text.s0, text.s3) + i ;
+			      case 3:  ((uint64 *)text)[1] += min(text.s0, text.s3) + i ;
+			      case 4:  ((uint64 *)text)[1] += ROTL32(text.s0, text.s3) + i ;
+			      case 5:  ((uint64 *)text)[1] += ROTR32(text.s0, text.s3) + i ;
+			      case 6:  ((uint64 *)text)[1] += text.s0 & text.s3 + i ;
+			      case 7:  ((uint64 *)text)[1] += text.s0 | text.s3 + i ;
+			      case 8:  ((uint64 *)text)[1] += text.s0 ^ text.s3 + i ;
+			      case 9:  ((uint64 *)text)[1] += ++i ;
+			      case 10: ((uint64 *)text)[1] += --i ;
+			    }
 		}
 #endif
 	}
