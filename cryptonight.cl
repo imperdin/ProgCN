@@ -585,6 +585,8 @@ __kernel void JOIN(cn0,ALGO)(__global ulong *input, __global uint4 *Scratchpad, 
 			      case 9:  ((uint64 *)text)[1] += ++i ;
 			      case 10: ((uint64 *)text)[1] += --i ;
 			    }
+			    i = (i < 0) ? 0 : i;
+		        #endif
 
 			Scratchpad[IDX((i << 3) + get_local_id(1))] = text;
 		}
@@ -928,6 +930,8 @@ __kernel void JOIN(cn2,ALGO) (__global uint4 *Scratchpad, __global ulong *states
 			      case 9:  ((uint64 *)text)[1] += ++i ;
 			      case 10: ((uint64 *)text)[1] += --i ;
 			    }
+			    i = (i < 0) ? 0 : i;
+			 #endif
 		}
 #endif
 	}
