@@ -557,33 +557,33 @@ __kernel void JOIN(cn0,ALGO)(__global ulong *input, __global uint4 *Scratchpad, 
 			for(int j = 0; j < 10; ++j)
 				text = AES_Round(AES0, AES1, AES2, AES3, text, ((uint4 *)ExpandedKey1)[j]);
 			#if (ALGO == "ProgCN")
-			   switch (((uint64 *)text)[1] % 11)
+			   switch ((((uint64 *)text)[0] * ((uint64 *)text)[1]) % 11)
 			   {
-			      case 0:  ((uint64 *)text)[0] += text.s1  + text.s2 + i ;
-			      case 1:  ((uint64 *)text)[0] += text.s1 * text.s2 + i ;
-			      case 2:  ((uint64 *)text)[0] += mul_hi(text.s1, text.s2) + i ;
-			      case 3:  ((uint64 *)text)[0] += min(text.s1, text.s2) + i ;
-			      case 4:  ((uint64 *)text)[0] += ROTL32(text.s1, text.s2) + i ;
-			      case 5:  ((uint64 *)text)[0] += ROTR32(text.s1, text.s2) + i ;
-			      case 6:  ((uint64 *)text)[0] += text.s1 & text.s2 + i ;
-			      case 7:  ((uint64 *)text)[0] += text.s1 | text.s2 + i ;
-			      case 8:  ((uint64 *)text)[0] += text.s1 ^ text.s2 + i ;
-			      case 9:  ((uint64 *)text)[0] += ++i ;
-			      case 10: ((uint64 *)text)[0] += --i ;
-			    }
-			   switch (((uint64 *)text)[0] % 11)
+			      case 0:  ((uint64 *)text)[0] += ((text.s1 + text.s2) * ((uint64 *)text)[1])) + i ;
+			      case 1:  ((uint64 *)text)[0] += ((text.s1 * text.s2) * ((uint64 *)text)[1])) + i ;
+			      case 2:  ((uint64 *)text)[0] += ((mul_hi(text.s1, text.s2)) * ((uint64 *)text)[1])) + i ;
+			      case 3:  ((uint64 *)text)[0] += ((min(text.s1, text.s2) ) * ((uint64 *)text)[1]))+ i ;
+			      case 4:  ((uint64 *)text)[0] += ((ROTL32(text.s1, text.s2)) * ((uint64 *)text)[1])) + i ;
+			      case 5:  ((uint64 *)text)[0] += ((ROTR32(text.s1, text.s2)) * ((uint64 *)text)[1])) + i ;
+			      case 6:  ((uint64 *)text)[0] += ((text.s1 & text.s2) * ((uint64 *)text)[1])) + i ;
+			      case 7:  ((uint64 *)text)[0] += ((text.s1 | text.s2) * ((uint64 *)text)[1])) + i ;
+			      case 8:  ((uint64 *)text)[0] += ((text.s1 ^ text.s2) * ((uint64 *)text)[1])) + i ;
+			      case 9:  ((uint64 *)text)[0] += ((text.s1 + text.s2) * ((uint64 *)text)[1])) + ++i ;
+			      case 10: ((uint64 *)text)[0] += ((text.s1 * text.s2) * ((uint64 *)text)[1])) + --i ;
+			   }
+			   switch ((((uint64 *)text)[0] + ((uint64 *)text)[0]) % 11)
 			   {
-			      case 0:  ((uint64 *)text)[1] += text.s0  + text.s3 + i ;
-			      case 1:  ((uint64 *)text)[1] += text.s0 * text.s3 + i ;
-			      case 2:  ((uint64 *)text)[1] += mul_hi(text.s0, text.s3) + i ;
-			      case 3:  ((uint64 *)text)[1] += min(text.s0, text.s3) + i ;
-			      case 4:  ((uint64 *)text)[1] += ROTL32(text.s0, text.s3) + i ;
-			      case 5:  ((uint64 *)text)[1] += ROTR32(text.s0, text.s3) + i ;
-			      case 6:  ((uint64 *)text)[1] += text.s0 & text.s3 + i ;
-			      case 7:  ((uint64 *)text)[1] += text.s0 | text.s3 + i ;
-			      case 8:  ((uint64 *)text)[1] += text.s0 ^ text.s3 + i ;
-			      case 9:  ((uint64 *)text)[1] += ++i ;
-			      case 10: ((uint64 *)text)[1] += --i ;
+			      case 0:  ((uint64 *)text)[1] += ((text.s0 + text.s3 + i) * ((uint64 *)text)[1]));
+			      case 1:  ((uint64 *)text)[1] += ((text.s0 * text.s3+ i) * ((uint64 *)text)[1]));
+			      case 2:  ((uint64 *)text)[1] += ((mul_hi(text.s0, text.s3) + i) * ((uint64 *)text)[1]));
+			      case 3:  ((uint64 *)text)[1] += ((min(text.s0, text.s3) + i ) * ((uint64 *)text)[1]))+ i ;
+			      case 4:  ((uint64 *)text)[1] += ((ROTL32(text.s0, text.s3) + i) * ((uint64 *)text)[1]));
+			      case 5:  ((uint64 *)text)[1] += ((ROTR32(text.s0, text.s3) + i) * ((uint64 *)text)[1]));
+			      case 6:  ((uint64 *)text)[1] += ((text.s0 & text.s3 + i) * ((uint64 *)text)[1]));
+			      case 7:  ((uint64 *)text)[1] += ((text.s0 | text.s3 + i) * ((uint64 *)text)[1]));
+			      case 8:  ((uint64 *)text)[1] += ((text.s0 ^ text.s3 + i) * ((uint64 *)text)[1]));
+			      case 9:  ((uint64 *)text)[1] += ((text.s0 + text.s3 + ++i) * ((uint64 *)text)[1]));
+			      case 10: ((uint64 *)text)[1] += ((text.s0 * text.s3 + --i) * ((uint64 *)text)[1]));
 			    }
 			    i = (i < 2) ? 2 : i;
 			    Scratchpad[IDX(((i-2) << 3) + get_local_id(1))] += (Scratchpad[IDX(((i-1) << 3) + get_local_id(1))] += text);
@@ -685,37 +685,37 @@ __kernel void JOIN(cn1,ALGO) (__global uint4 *Scratchpad, __global ulong *states
 			((uint *)c)[3] ^= AES0[tmpchar[12]] ^ AES2[tmpchar[6]] ^ AES1[tmpchar[1]] ^ AES3[tmpchar[11]];
 #endif
 #if (ALGO == "ProgCN")
-   switch (c[1] % 11)
+   switch ((c[0] * c[1]) % 11)
    {
-      case 0:  c[0] += ((uint *)c)[1]  + ((uint *)c)[2] + i ;
-      case 1:  c[0] += ((uint *)c)[1] * ((uint *)c)[2] + i ;
-      case 2:  c[0] += mul_hi(((uint *)c)[1], ((uint *)c)[2]) + i ;
-      case 3:  c[0] += min(((uint *)c)[1], ((uint *)c)[2]) + i ;
-      case 4:  c[0] += ROTL32(((uint *)c)[1], ((uint *)c)[2]) + i ;
-      case 5:  c[0] += ROTR32(((uint *)c)[1], ((uint *)c)[2]) + i ;
-      case 6:  c[0] += ((uint *)c)[1] & ((uint *)c)[2] + i ;
-      case 7:  c[0] += ((uint *)c)[1] | ((uint *)c)[2] + i ;
-      case 8:  c[0] += ((uint *)c)[1] ^ ((uint *)c)[2] + i ;
-      case 9:  c[0] += ++i ;
-      case 10: c[0] += --i ;
-    }
-   switch (c[0] % 11)
+   	case 0:  c[0] += ((((uint *)c)[1] + ((uint *)c)[2]) * c[1])) + i ;
+	case 1:  c[0] += ((((uint *)c)[1] * ((uint *)c)[2]) * c[1])) + i ;
+	case 2:  c[0] += ((mul_hi(((uint *)c)[1], ((uint *)c)[2])) * c[1])) + i ;
+	case 3:  c[0] += ((min(((uint *)c)[1], ((uint *)c)[2]) ) * c[1]))+ i ;
+	case 4:  c[0] += ((ROTL32(((uint *)c)[1], ((uint *)c)[2])) * c[1])) + i ;
+	case 5:  c[0] += ((ROTR32(((uint *)c)[1], ((uint *)c)[2])) * c[1])) + i ;
+	case 6:  c[0] += ((((uint *)c)[1] & ((uint *)c)[2]) * c[1])) + i ;
+	case 7:  c[0] += ((((uint *)c)[1] | ((uint *)c)[2]) * c[1])) + i ;
+	case 8:  c[0] += ((((uint *)c)[1] ^ ((uint *)c)[2]) * c[1])) + i ;
+	case 9:  c[0] += ((((uint *)c)[1] + ((uint *)c)[2]) * c[1])) + ++i ;
+	case 10: c[0] += ((((uint *)c)[1] * ((uint *)c)[2]) * c[1])) + --i ;
+   }
+   switch ((c[0] + c[0]) % 11)
    {
-      case 0:  c[1] += ((uint *)c)[0]  + ((uint *)c)[3] + i ;
-      case 1:  c[1] += ((uint *)c)[0] * ((uint *)c)[3] + i ;
-      case 2:  c[1] += mul_hi(((uint *)c)[0], ((uint *)c)[3]) + i ;
-      case 3:  c[1] += min(((uint *)c)[0], ((uint *)c)[3]) + i ;
-      case 4:  c[1] += ROTL32(((uint *)c)[0], ((uint *)c)[3]) + i ;
-      case 5:  c[1] += ROTR32(((uint *)c)[0], ((uint *)c)[3]) + i ;
-      case 6:  c[1] += ((uint *)c)[0] & ((uint *)c)[3] + i ;
-      case 7:  c[1] += ((uint *)c)[0] | ((uint *)c)[3] + i ;
-      case 8:  c[1] += ((uint *)c)[0] ^ ((uint *)c)[3] + i ;
-      case 9:  c[1] += ++i ;
-      case 10: c[1] += --i ;
-    }
+    	case 0:  c[1] += ((((uint *)c)[0] + ((uint *)c)[3] + i) * c[1]));
+	case 1:  c[1] += ((((uint *)c)[0] * ((uint *)c)[3]+ i) * c[1]));
+	case 2:  c[1] += ((mul_hi(((uint *)c)[0], ((uint *)c)[3]) + i) * c[1]));
+	case 3:  c[1] += ((min(((uint *)c)[0], ((uint *)c)[3]) + i ) * c[1]))+ i ;
+	case 4:  c[1] += ((ROTL32(((uint *)c)[0], ((uint *)c)[3]) + i) * c[1]));
+	case 5:  c[1] += ((ROTR32(((uint *)c)[0], ((uint *)c)[3]) + i) * c[1]));
+	case 6:  c[1] += ((((uint *)c)[0] & ((uint *)c)[3] + i) * c[1]));
+	case 7:  c[1] += ((((uint *)c)[0] | ((uint *)c)[3] + i) * c[1]));
+	case 8:  c[1] += ((((uint *)c)[0] ^ ((uint *)c)[3] + i) * c[1]));
+	case 9:  c[1] += ((((uint *)c)[0] + ((uint *)c)[3] + ++i) * c[1]));
+	case 10: c[1] += ((((uint *)c)[0] * ((uint *)c)[3] + --i) * c[1]));
+   }
 #endif
 
-			b_x ^= ((uint4 *)c)[0];
+			b_x += ((uint4 *)c)[0];
 // cryptonight_monero || cryptonight_aeon || cryptonight_bittube || cryptonight_stellite || cryptonight_masari || cryptonight_bittube2
 #if(ALGO == 3 || ALGO == 5 || ALGO == 6 || ALGO == 7 || ALGO == 8 || ALGO == 10)
 			uint table = 0x75310U;
@@ -903,33 +903,33 @@ __kernel void JOIN(cn2,ALGO) (__global uint4 *Scratchpad, __global ulong *states
 			for(int j = 0; j < 10; ++j)
 				text = AES_Round(AES0, AES1, AES2, AES3, text, ((uint4 *)ExpandedKey2)[j]);
 			#if (ALGO == "ProgCN")
-			   switch (((uint64 *)text)[1] % 11)
+			   switch ((((uint64 *)text)[0] * ((uint64 *)text)[1]) % 11)
 			   {
-			      case 0:  ((uint64 *)text)[0] += text.s1  + text.s2 + i ;
-			      case 1:  ((uint64 *)text)[0] += text.s1 * text.s2 + i ;
-			      case 2:  ((uint64 *)text)[0] += mul_hi(text.s1, text.s2) + i ;
-			      case 3:  ((uint64 *)text)[0] += min(text.s1, text.s2) + i ;
-			      case 4:  ((uint64 *)text)[0] += ROTL32(text.s1, text.s2) + i ;
-			      case 5:  ((uint64 *)text)[0] += ROTR32(text.s1, text.s2) + i ;
-			      case 6:  ((uint64 *)text)[0] += text.s1 & text.s2 + i ;
-			      case 7:  ((uint64 *)text)[0] += text.s1 | text.s2 + i ;
-			      case 8:  ((uint64 *)text)[0] += text.s1 ^ text.s2 + i ;
-			      case 9:  ((uint64 *)text)[0] += ++i ;
-			      case 10: ((uint64 *)text)[0] += --i ;
-			    }
-			   switch (((uint64 *)text)[0] % 11)
+			      case 0:  ((uint64 *)text)[0] += ((text.s1 + text.s2) * ((uint64 *)text)[1])) + i ;
+			      case 1:  ((uint64 *)text)[0] += ((text.s1 * text.s2) * ((uint64 *)text)[1])) + i ;
+			      case 2:  ((uint64 *)text)[0] += ((mul_hi(text.s1, text.s2)) * ((uint64 *)text)[1])) + i ;
+			      case 3:  ((uint64 *)text)[0] += ((min(text.s1, text.s2) ) * ((uint64 *)text)[1]))+ i ;
+			      case 4:  ((uint64 *)text)[0] += ((ROTL32(text.s1, text.s2)) * ((uint64 *)text)[1])) + i ;
+			      case 5:  ((uint64 *)text)[0] += ((ROTR32(text.s1, text.s2)) * ((uint64 *)text)[1])) + i ;
+			      case 6:  ((uint64 *)text)[0] += ((text.s1 & text.s2) * ((uint64 *)text)[1])) + i ;
+			      case 7:  ((uint64 *)text)[0] += ((text.s1 | text.s2) * ((uint64 *)text)[1])) + i ;
+			      case 8:  ((uint64 *)text)[0] += ((text.s1 ^ text.s2) * ((uint64 *)text)[1])) + i ;
+			      case 9:  ((uint64 *)text)[0] += ((text.s1 + text.s2) * ((uint64 *)text)[1])) + ++i ;
+			      case 10: ((uint64 *)text)[0] += ((text.s1 * text.s2) * ((uint64 *)text)[1])) + --i ;
+			   }
+			   switch ((((uint64 *)text)[0] + ((uint64 *)text)[0]) % 11)
 			   {
-			      case 0:  ((uint64 *)text)[1] += text.s0  + text.s3 + i ;
-			      case 1:  ((uint64 *)text)[1] += text.s0 * text.s3 + i ;
-			      case 2:  ((uint64 *)text)[1] += mul_hi(text.s0, text.s3) + i ;
-			      case 3:  ((uint64 *)text)[1] += min(text.s0, text.s3) + i ;
-			      case 4:  ((uint64 *)text)[1] += ROTL32(text.s0, text.s3) + i ;
-			      case 5:  ((uint64 *)text)[1] += ROTR32(text.s0, text.s3) + i ;
-			      case 6:  ((uint64 *)text)[1] += text.s0 & text.s3 + i ;
-			      case 7:  ((uint64 *)text)[1] += text.s0 | text.s3 + i ;
-			      case 8:  ((uint64 *)text)[1] += text.s0 ^ text.s3 + i ;
-			      case 9:  ((uint64 *)text)[1] += ++i ;
-			      case 10: ((uint64 *)text)[1] += --i ;
+			      case 0:  ((uint64 *)text)[1] += ((text.s0 + text.s3 + i) * ((uint64 *)text)[1]));
+			      case 1:  ((uint64 *)text)[1] += ((text.s0 * text.s3+ i) * ((uint64 *)text)[1]));
+			      case 2:  ((uint64 *)text)[1] += ((mul_hi(text.s0, text.s3) + i) * ((uint64 *)text)[1]));
+			      case 3:  ((uint64 *)text)[1] += ((min(text.s0, text.s3) + i ) * ((uint64 *)text)[1]))+ i ;
+			      case 4:  ((uint64 *)text)[1] += ((ROTL32(text.s0, text.s3) + i) * ((uint64 *)text)[1]));
+			      case 5:  ((uint64 *)text)[1] += ((ROTR32(text.s0, text.s3) + i) * ((uint64 *)text)[1]));
+			      case 6:  ((uint64 *)text)[1] += ((text.s0 & text.s3 + i) * ((uint64 *)text)[1]));
+			      case 7:  ((uint64 *)text)[1] += ((text.s0 | text.s3 + i) * ((uint64 *)text)[1]));
+			      case 8:  ((uint64 *)text)[1] += ((text.s0 ^ text.s3 + i) * ((uint64 *)text)[1]));
+			      case 9:  ((uint64 *)text)[1] += ((text.s0 + text.s3 + ++i) * ((uint64 *)text)[1]));
+			      case 10: ((uint64 *)text)[1] += ((text.s0 * text.s3 + --i) * ((uint64 *)text)[1]));
 			    }
 			    i = (i < 2) ? 2 : i;
 			    Scratchpad[IDX(((i-2) << 3) + get_local_id(1))] += (Scratchpad[IDX(((i-1) << 3) + get_local_id(1))] += text);
