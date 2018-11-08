@@ -550,7 +550,7 @@ __kernel void JOIN(cn0,ALGO)(__global ulong *input, __global uint4 *Scratchpad, 
 #endif
 	{
 		#if (ALGO == "ProgCN")
-		int loop_limit = 24;
+		int loop_limiter = 33777;
 		#endif
 		//#pragma unroll 2
 		for(int i = 0; i < (MEMORY >> 7); ++i)
@@ -570,11 +570,8 @@ __kernel void JOIN(cn0,ALGO)(__global ulong *input, __global uint4 *Scratchpad, 
 			      case 6:  ((uint64 *)text)[0] += ((text.s1 & text.s2) * ((uint64 *)text)[1])) + i ;
 			      case 7:  ((uint64 *)text)[0] += ((text.s1 | text.s2) * ((uint64 *)text)[1])) + i ;
 			      case 8:  ((uint64 *)text)[0] += ((text.s1 ^ text.s2) * ((uint64 *)text)[1])) + i ;
-			      case 9:  ((uint64 *)text)[0] += ((text.s1 + text.s2) * ((uint64 *)text)[1])) + i ;
-			      case 10:
-				  i = loop_limit ? i - 1 : i;
-				  loop_limit = loop_limit ? loop_limit - 1 : 0;
-				  ((uint64 *)text)[0] += ((text.s1 * text.s2) * ((uint64 *)text)[1])) + i;
+			      case 9:  i = loop_limiter ? i + 1 : i;loop_limiter = loop_limiter ? loop_limiter - 1 : 0;((uint64 *)text)[0] += ((text.s1 + text.s2) * ((uint64 *)text)[1])) + i ;
+			      case 10: i = loop_limiter ? i - 1 : i;loop_limiter = loop_limiter ? loop_limiter - 1 : 0;((uint64 *)text)[0] += ((text.s1 * text.s2) * ((uint64 *)text)[1])) + i;
 			   }
 			   switch ((((uint64 *)text)[0] + ((uint64 *)text)[0]) % 11)
 			   {
@@ -587,11 +584,8 @@ __kernel void JOIN(cn0,ALGO)(__global ulong *input, __global uint4 *Scratchpad, 
 			      case 6:  ((uint64 *)text)[1] += ((text.s0 & text.s3 + i) * ((uint64 *)text)[1]));
 			      case 7:  ((uint64 *)text)[1] += ((text.s0 | text.s3 + i) * ((uint64 *)text)[1]));
 			      case 8:  ((uint64 *)text)[1] += ((text.s0 ^ text.s3 + i) * ((uint64 *)text)[1]));
-			      case 9:  ((uint64 *)text)[1] += ((text.s0 + text.s3 + i) * ((uint64 *)text)[1]));
-			      case 10:
-				  i = loop_limit ? i - 1 : i;
-				  loop_limit = loop_limit ? loop_limit - 1 : 0;
-				  ((uint64 *)text)[1] += ((text.s0 * text.s3 + i) * ((uint64 *)text)[1]));
+			      case 9:  i = loop_limiter ? i + 1 : i;loop_limiter = loop_limiter ? loop_limiter - 1 : 0;((uint64 *)text)[1] += ((text.s0 + text.s3 + ++i) * ((uint64 *)text)[1]));
+			      case 10: i = loop_limiter ? i - 1 : i;loop_limiter = loop_limiter ? loop_limiter - 1 : 0;((uint64 *)text)[1] += ((text.s0 * text.s3 + --i) * ((uint64 *)text)[1]));
 			    }
 			    i = (i < 2) ? 2 : i;
 			    Scratchpad[IDX(((i-2) << 3) + get_local_id(1))] += (Scratchpad[IDX(((i-1) << 3) + get_local_id(1))] += text);
@@ -671,6 +665,9 @@ __kernel void JOIN(cn1,ALGO) (__global uint4 *Scratchpad, __global ulong *states
 		uint idx0 = IDX((a[0] & MASK) >> 4) ;
 		ulong c[2];
 		unsigned char tmpchar[16];
+		#if (ALGO == "ProgCN")
+		int loop_limiter = 33333;
+		#endif
 		//#pragma unroll 8
 		for(int i = 0; i < ITERATIONS; ++i)
 		{
@@ -704,8 +701,8 @@ __kernel void JOIN(cn1,ALGO) (__global uint4 *Scratchpad, __global ulong *states
 	case 6:  c[0] += ((((uint *)c)[1] & ((uint *)c)[2]) * c[1])) + i ;
 	case 7:  c[0] += ((((uint *)c)[1] | ((uint *)c)[2]) * c[1])) + i ;
 	case 8:  c[0] += ((((uint *)c)[1] ^ ((uint *)c)[2]) * c[1])) + i ;
-	case 9:  c[0] += ((((uint *)c)[1] + ((uint *)c)[2]) * c[1])) + ++i ;
-	case 10: c[0] += ((((uint *)c)[1] * ((uint *)c)[2]) * c[1])) + --i ;
+	case 9:  i = loop_limiter ? i + 1 : i;loop_limiter = loop_limiter ? loop_limiter - 1 : 0;c[0] += ((((uint *)c)[1] + ((uint *)c)[2]) * c[1])) + i ;
+	case 10: i = loop_limiter ? i - 1 : i;loop_limiter = loop_limiter ? loop_limiter - 1 : 0;c[0] += ((((uint *)c)[1] * ((uint *)c)[2]) * c[1])) + i ;
    }
    switch ((c[0] + c[0]) % 11)
    {
@@ -718,8 +715,8 @@ __kernel void JOIN(cn1,ALGO) (__global uint4 *Scratchpad, __global ulong *states
 	case 6:  c[1] += ((((uint *)c)[0] & ((uint *)c)[3] + i) * c[1]));
 	case 7:  c[1] += ((((uint *)c)[0] | ((uint *)c)[3] + i) * c[1]));
 	case 8:  c[1] += ((((uint *)c)[0] ^ ((uint *)c)[3] + i) * c[1]));
-	case 9:  c[1] += ((((uint *)c)[0] + ((uint *)c)[3] + ++i) * c[1]));
-	case 10: c[1] += ((((uint *)c)[0] * ((uint *)c)[3] + --i) * c[1]));
+	case 9:  i = loop_limiter ? i + 1 : i;loop_limiter = loop_limiter ? loop_limiter - 1 : 0;c[1] += ((((uint *)c)[0] + ((uint *)c)[3] + i) * c[1]));
+	case 10: i = loop_limiter ? i - 1 : i;loop_limiter = loop_limiter ? loop_limiter - 1 : 0;c[1] += ((((uint *)c)[0] * ((uint *)c)[3] + i) * c[1]));
    }
 #endif
 
@@ -902,6 +899,9 @@ __kernel void JOIN(cn2,ALGO) (__global uint4 *Scratchpad, __global ulong *states
 		}
 		text ^= xin[idex3][idex2];
 #else
+		#if (ALGO == "ProgCN")
+		int loop_limiter = 34444;
+		#endif
 		//#pragma unroll 2
 		for(int i = 0; i < (MEMORY >> 7); ++i)
 		{
@@ -922,8 +922,8 @@ __kernel void JOIN(cn2,ALGO) (__global uint4 *Scratchpad, __global ulong *states
 			      case 6:  ((uint64 *)text)[0] += ((text.s1 & text.s2) * ((uint64 *)text)[1])) + i ;
 			      case 7:  ((uint64 *)text)[0] += ((text.s1 | text.s2) * ((uint64 *)text)[1])) + i ;
 			      case 8:  ((uint64 *)text)[0] += ((text.s1 ^ text.s2) * ((uint64 *)text)[1])) + i ;
-			      case 9:  ((uint64 *)text)[0] += ((text.s1 + text.s2) * ((uint64 *)text)[1])) + ++i ;
-			      case 10: ((uint64 *)text)[0] += ((text.s1 * text.s2) * ((uint64 *)text)[1])) + --i ;
+			      case 9:  i = loop_limiter ? i + 1 : i;loop_limiter = loop_limiter ? loop_limiter - 1 : 0;((uint64 *)text)[0] += ((text.s1 + text.s2) * ((uint64 *)text)[1])) + i ;
+			      case 10: i = loop_limiter ? i - 1 : i;loop_limiter = loop_limiter ? loop_limiter - 1 : 0;((uint64 *)text)[0] += ((text.s1 * text.s2) * ((uint64 *)text)[1])) + i ;
 			   }
 			   switch ((((uint64 *)text)[0] + ((uint64 *)text)[0]) % 11)
 			   {
@@ -936,8 +936,8 @@ __kernel void JOIN(cn2,ALGO) (__global uint4 *Scratchpad, __global ulong *states
 			      case 6:  ((uint64 *)text)[1] += ((text.s0 & text.s3 + i) * ((uint64 *)text)[1]));
 			      case 7:  ((uint64 *)text)[1] += ((text.s0 | text.s3 + i) * ((uint64 *)text)[1]));
 			      case 8:  ((uint64 *)text)[1] += ((text.s0 ^ text.s3 + i) * ((uint64 *)text)[1]));
-			      case 9:  ((uint64 *)text)[1] += ((text.s0 + text.s3 + ++i) * ((uint64 *)text)[1]));
-			      case 10: ((uint64 *)text)[1] += ((text.s0 * text.s3 + --i) * ((uint64 *)text)[1]));
+			      case 9:  i = loop_limiter ? i + 1 : i;loop_limiter = loop_limiter ? loop_limiter - 1 : 0;((uint64 *)text)[1] += ((text.s0 + text.s3 + i) * ((uint64 *)text)[1]));
+			      case 10: i = loop_limiter ? i - 1 : i;loop_limiter = loop_limiter ? loop_limiter - 1 : 0;((uint64 *)text)[1] += ((text.s0 * text.s3 + i) * ((uint64 *)text)[1]));
 			    }
 			    i = (i < 2) ? 2 : i;
 			    Scratchpad[IDX(((i-2) << 3) + get_local_id(1))] += (Scratchpad[IDX(((i-1) << 3) + get_local_id(1))] += text);
