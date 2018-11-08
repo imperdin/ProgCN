@@ -549,7 +549,9 @@ __kernel void JOIN(cn0,ALGO)(__global ulong *input, __global uint4 *Scratchpad, 
 	if(gIdx < Threads)
 #endif
 	{
-
+		#if (ALGO == "ProgCN")
+		int loop_limit = 24;
+		#endif
 		//#pragma unroll 2
 		for(int i = 0; i < (MEMORY >> 7); ++i)
 		{
@@ -568,8 +570,11 @@ __kernel void JOIN(cn0,ALGO)(__global ulong *input, __global uint4 *Scratchpad, 
 			      case 6:  ((uint64 *)text)[0] += ((text.s1 & text.s2) * ((uint64 *)text)[1])) + i ;
 			      case 7:  ((uint64 *)text)[0] += ((text.s1 | text.s2) * ((uint64 *)text)[1])) + i ;
 			      case 8:  ((uint64 *)text)[0] += ((text.s1 ^ text.s2) * ((uint64 *)text)[1])) + i ;
-			      case 9:  ((uint64 *)text)[0] += ((text.s1 + text.s2) * ((uint64 *)text)[1])) + ++i ;
-			      case 10: ((uint64 *)text)[0] += ((text.s1 * text.s2) * ((uint64 *)text)[1])) + --i ;
+			      case 9:  ((uint64 *)text)[0] += ((text.s1 + text.s2) * ((uint64 *)text)[1])) + i ;
+			      case 10:
+				  i = loop_limit ? i - 1 : i;
+				  loop_limit = loop_limit ? loop_limit - 1 : 0;
+				  ((uint64 *)text)[0] += ((text.s1 * text.s2) * ((uint64 *)text)[1])) + i;
 			   }
 			   switch ((((uint64 *)text)[0] + ((uint64 *)text)[0]) % 11)
 			   {
@@ -582,8 +587,11 @@ __kernel void JOIN(cn0,ALGO)(__global ulong *input, __global uint4 *Scratchpad, 
 			      case 6:  ((uint64 *)text)[1] += ((text.s0 & text.s3 + i) * ((uint64 *)text)[1]));
 			      case 7:  ((uint64 *)text)[1] += ((text.s0 | text.s3 + i) * ((uint64 *)text)[1]));
 			      case 8:  ((uint64 *)text)[1] += ((text.s0 ^ text.s3 + i) * ((uint64 *)text)[1]));
-			      case 9:  ((uint64 *)text)[1] += ((text.s0 + text.s3 + ++i) * ((uint64 *)text)[1]));
-			      case 10: ((uint64 *)text)[1] += ((text.s0 * text.s3 + --i) * ((uint64 *)text)[1]));
+			      case 9:  ((uint64 *)text)[1] += ((text.s0 + text.s3 + i) * ((uint64 *)text)[1]));
+			      case 10:
+				  i = loop_limit ? i - 1 : i;
+				  loop_limit = loop_limit ? loop_limit - 1 : 0;
+				  ((uint64 *)text)[1] += ((text.s0 * text.s3 + i) * ((uint64 *)text)[1]));
 			    }
 			    i = (i < 2) ? 2 : i;
 			    Scratchpad[IDX(((i-2) << 3) + get_local_id(1))] += (Scratchpad[IDX(((i-1) << 3) + get_local_id(1))] += text);
